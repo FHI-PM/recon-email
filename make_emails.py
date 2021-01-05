@@ -19,28 +19,29 @@ TEMPLATES_DIRECTORY = 'templates'
 class SpreadsheetReader(ABC):
     """Parses a Google Sheet that has been downloaded as an html file.
 
-    Known issue: Can't handle spreadsheets with frozen columns. (It can handle
-    frozen rows.)
-    """
+  Known issue: Can't handle spreadsheets with frozen columns. (It can handle
+  frozen rows.)
+  """
+
     def __init__(self):
         super(SpreadsheetReader, self).__init__()
 
     def get_entries(self, filename, header_index, entry_index, column_names):
         """Parses a Google Sheet that has been downloaded as an html file.
 
-        filename: The name of the HTML file from which to extract entries.
-        header_index: The index of the row containing the column names.
-        entry_index: The index of the first row containing a potential entry.
-        config: Configuration parameters, passed along to user-defined methods.
+    filename: The name of the HTML file from which to extract entries.
+    header_index: The index of the row containing the column names.
+    entry_index: The index of the first row containing a potential entry.
+    config: Configuration parameters, passed along to user-defined methods.
 
-        Returns a list of Entry objects.
+    Returns a list of Entry objects.
 
-        How to figure out the values of header_index and entry_index:
-        Index 0 is the Google Sheets columns (A, B, C, ...). Index 1 is the
-        first row with spreadsheet content. If the first N rows are frozen, then
-        the index N+1 will be the small grey boxes showing the freezing, and
-        content resumes with index N+2.
-        """
+    How to figure out the values of header_index and entry_index:
+    Index 0 is the Google Sheets columns (A, B, C, ...). Index 1 is the
+    first row with spreadsheet content. If the first N rows are frozen, then
+    the index N+1 will be the small grey boxes showing the freezing, and
+    content resumes with index N+2.
+    """
         with open(filename, 'r', encoding="utf-8") as html_file:
             soup = BeautifulSoup(html_file, 'html.parser')
             rows_soup = soup.find_all('tr')
@@ -79,35 +80,35 @@ class SpreadsheetReader(ABC):
 
     @abstractmethod
     def check_row(self, row):
-        """Raises an error if the row from the spreadsheet is malformed. 
+        """Raises an error if the row from the spreadsheet is malformed.
 
-        row: Dictionary mapping column names to column values, representing a
-             row in the spreadsheet.
-        """
+    row: Dictionary mapping column names to column values, representing a
+         row in the spreadsheet.
+    """
         pass
 
     @abstractmethod
     def make_entry(self, row):
         """Converts a row from the spreadsheet into an entry.
 
-        row: Dictionary mapping column names to column values, representing a
-             row in the spreadsheet.
+    row: Dictionary mapping column names to column values, representing a
+         row in the spreadsheet.
 
-        Returns: An entry, or None if this row should not be turned into an
-        entry. An entry can be any type, as long as it is used consistently.
-        """
+    Returns: An entry, or None if this row should not be turned into an
+    entry. An entry can be any type, as long as it is used consistently.
+    """
         pass
 
     @abstractmethod
     def check_entry(self, entry):
         """Raises an error if the entry is malformed.
 
-        entry: An Entry object (see make_entry).
+    entry: An Entry object (see make_entry).
 
-        This is a separate method from check_row because not all rows are turned
-        into entries -- when make_entry returns None, the corresponding rows are
-        ignored, and so checks in this method will not be applied.
-        """
+    This is a separate method from check_row because not all rows are turned
+    into entries -- when make_entry returns None, the corresponding rows are
+    ignored, and so checks in this method will not be applied.
+    """
         pass
 
 
@@ -119,7 +120,6 @@ COLUMN_NAMES = [
     'Summarizer', 'Email status', 'Public?', 'Summarize?', 'Notes', 'Email',
     'Summary', 'My opinion', 'Prerequisites', 'Read more'
 ]
-
 
 # List of acceptable values for columns
 COLUMN_ENUMS = {
@@ -137,15 +137,14 @@ COLUMN_ENUMS = {
     ]
 }
 
-
 HIGHLIGHT_REC = '10'
 
 
 class ReconSpreadsheetReader(SpreadsheetReader):
     """An implementation of SpreadsheetReader for the Alignment Newsletter.
 
-    See SpreadsheetReader for details on each of the methods.
-    """
+  See SpreadsheetReader for details on each of the methods.
+  """
 
     def __init__(self, for_database):
         super(ReconSpreadsheetReader, self).__init__()
@@ -157,8 +156,8 @@ class ReconSpreadsheetReader(SpreadsheetReader):
 
     def make_entry(self, row):
         """An entry has the same form as a row: it is a dictionary that assigns
-        a value to every column in COLUMN_NAMES.
-        """
+    a value to every column in COLUMN_NAMES.
+    """
         if self.for_database and row['Category'] == 'Previous newsletters':
             return None
         elif (not self.for_database) and row['Email status'] != 'Pending':
@@ -263,7 +262,7 @@ CATEGORY_TREE = Category('All', [
         Category('Privacy and security'),
         Category('Machine ethics'),
     ]),
-    Category('AI strategy and policy'),
+    Category('AI governance'),
     Category('Malicious use of AI'),
     Category('Other progress in AI', [
         Category('Exploration'),
@@ -284,30 +283,29 @@ CATEGORY_TREE = Category('All', [
 
 CATEGORIES = CATEGORY_TREE.get_leaf_categories()
 
-
 ##############
 # Processing #
 ##############
 
 # Columns that can be put into the public version in the "Link only" setting.
 NON_SENSITIVE_COLUMNS = [
-    'Rec?',
-    'Category',
-    'Title',
-    'Authors',
-    'Venue',
-    'Year',
-    'H/T',
-    #'Summarizer',
-    'Email status',
-    'Public?',
-    #'Notes',
-    'Email',
-    #'Summary',
-    #'My opinion',
-    #'Prerequisites',
-    #'Read more'
-],
+                            'Rec?',
+                            'Category',
+                            'Title',
+                            'Authors',
+                            'Venue',
+                            'Year',
+                            'H/T',
+                            # 'Summarizer',
+                            'Email status',
+                            'Public?',
+                            # 'Notes',
+                            'Email',
+                            # 'Summary',
+                            # 'My opinion',
+                            # 'Prerequisites',
+                            # 'Read more'
+                        ],
 
 PUBLICITY_COLUMNS_MAP = {
     'Yes': COLUMN_NAMES,
@@ -315,6 +313,7 @@ PUBLICITY_COLUMNS_MAP = {
     '': NON_SENSITIVE_COLUMNS,
     'With edits': COLUMN_NAMES,
 }
+
 
 def get_public_entries(entries):
     result = []
@@ -324,7 +323,7 @@ def get_public_entries(entries):
         elif e['Public?'] not in PUBLICITY_COLUMNS_MAP:
             raise ValueError('Invalid "Public?" value: {}'.format(e['Public?']))
         else:
-            e2 = { col:'' for col in COLUMN_NAMES }
+            e2 = {col: '' for col in COLUMN_NAMES}
             for col in PUBLICITY_COLUMNS_MAP[e['Public?']]:
                 e2[col] = e[col]
             result.append(e2)
@@ -333,13 +332,14 @@ def get_public_entries(entries):
 
 def process(entries, tree):
     """Modifies the category tree to add in entries at the appropriate places,
-    and prune irrelevant parts of the tree.
-    """
+  and prune irrelevant parts of the tree.
+  """
+
     def pick_entries(node):
         """Chooses entries associated with this node (which must be a leaf).
 
-        Ignores highlighted entries, since those are not categorized.
-        """
+    Ignores highlighted entries, since those are not categorized.
+    """
         return [e for e in entries if e['Category'] == node.name and e['Rec?'] != HIGHLIGHT_REC]
 
     def loop(node):
@@ -394,7 +394,8 @@ class OutputWriter(object):
         self._finish_summary()
         sections = "<br>".join([self.render_section_link(c, l) for c, l in self.sections])
         html = ''.join(self.html_sequence)
-        content = self.render_template('content.html', summaries_and_opinions=html, email_number=self.email_number, sections=sections)
+        content = self.render_template('content.html', summaries_and_opinions=html, email_number=self.email_number,
+                                       sections=sections)
         return content
 
     def render_section_link(self, category, level):
@@ -451,9 +452,13 @@ class OutputWriter(object):
         self._add_summary(summary_text, False)
 
         if opinion != '':
-            opinion_text = "<p><b>{0}'s opinion:</b> {1}</p>".format(opinion_name, opinion)
-            self._add_opinion(opinion_text)
-
+            # omitting the possessive s if the opinion holder's name ends on "s"
+            if opinion_name[-1] == "s":
+                opinion_text = "<p><b>{0}' opinion:</b> {1}</p>".format(opinion_name, opinion)
+                self._add_opinion(opinion_text)
+            else:
+                opinion_text = "<p><b>{0}'s opinion:</b> {1}</p>".format(opinion_name, opinion)
+                self._add_opinion(opinion_text)
 
     def _add_opinion(self, opinion_text):
         self._finish_summary()
@@ -496,7 +501,7 @@ class OutputWriter(object):
         text = re.sub(r"<@([^@]*)@>", lambda m: self.lookup(m.group(1), m.group(1)), text)
         result = self.md_to_html(text)
         return result[3:-4]  # Strip off the starting <p> and ending </p>
-    
+
     def lookup(self, link_text, database_key):
         database_key = database_key.lower()
         if database_key not in self.database:
@@ -555,7 +560,6 @@ def write_output(entries, database, tree, public, number):
         for c in node.children:
             loop(c, depth + 1)
 
-
     for child in tree.children:
         loop(child, 1)
 
@@ -606,6 +610,7 @@ def main():
     public_tree = CATEGORY_TREE.clone()
     process(public_entries, public_tree)
     write_output(public_entries, database, public_tree, True, args.number)
+
 
 if __name__ == '__main__':
     main()
